@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quantum Rift Challenge</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0a0a0a;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 20px;
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background-color: #1a1a1a;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    h1, h2 {
+      color: #00ffcc;
+      text-align: center;
+    }
+    .section {
+      margin-bottom: 30px;
+    }
+    /* Timer in the top right corner */
+    #timer {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #00ffcc;
+      color: #0a0a0a;
+      padding: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 5px;
+    }
+    input, button {
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    input {
+      width: 80%;
+      background-color: #2a2a2a;
+      color: #e0e0e0;
+      border: 1px solid #444;
+      margin-bottom: 10px;
+    }
+    button {
+      background-color: #00ffcc;
+      color: #0a0a0a;
+      border: none;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    button:disabled {
+      background-color: #444;
+      cursor: not-allowed;
+    }
+    .leaderboard table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .leaderboard th, .leaderboard td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #444;
+    }
+    .leaderboard th {
+      background-color: #2a2a2a;
+      color: #00ffcc;
+    }
+    .leaderboard td {
+      background-color: #1a1a1a;
+    }
+    /* Introduction styling */
+    .intro {
+      background-color: #222;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+    }
+    /* Riddle card styling */
+    .riddle-card {
+      background-color: #222;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 600px;
+      box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+      text-align: center;
+      line-height: 1.6;
+    }
+    .story-riddle {
+      /* Extra styling for the long story riddle */
+      padding: 30px;
+      margin: 30px auto;
+      background-color: #2b2b2b;
+      box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+    }
+    .hint-text {
+      color: #ff9900;
+      margin-top: 10px;
+      font-style: italic;
+    }
+    .button-group {
+      margin-top: 15px;
+    }
+    /* Next Team button styling */
+    #next-team-section {
+      text-align: center;
+      margin-top: 20px;
+      display: none;
+    }
+    #next-team-btn {
+      background-color: #00ffcc;
+      color: #0a0a0a;
+      padding: 12px 20px;
+      border: none;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="timer" aria-live="polite">Time: 10:00</div>
+  <div class="container">
+    <h1>Quantum Rift Challenge</h1>
+
+    <!-- Game Introduction -->
+<div class="section intro" id="intro-section">
+  <p>Welcome to the Quantum Rift Challenge!</p>
+  <p>Your mission is to answer a series of riddles that hold the key to stopping a catastrophic experiment at Ensam Engineering School. A rogue xenon element—linked to legendary Spiderman lore—has begun to threaten the school with its evil ambitions. The only way to restore order is to solve these puzzles in sequence. If you answer all the questions before the 10-minute mark, you will save Ensam Engineering School from Xenon's evil and fix the problem once and for all!</p>
+  <p><strong>Game Rules:</strong></p>
+  <ul>
+    <li><strong>Team Registration:</strong> Enter a unique team name to begin.</li>
+    <li><strong>Answer Riddles:</strong> Solve each riddle in order. You must provide the correct answer to proceed.</li>
+    <li><strong>Hints:</strong> You can use one hint per riddle, but it will come with a small time penalty.</li>
+    <li><strong>Skipping a Riddle:</strong> If you're stuck, you can skip a riddle, but this will also incur a penalty.</li>
+    <li><strong>Timer:</strong> You have 10 minutes to complete all the riddles. The timer starts once you register your team.</li>
+    <li><strong>Leaderboard:</strong> The leaderboard will update after each team answers the riddles. The higher your score, the better your ranking.</li>
+  </ul>
+  <p>Remember: You must answer the riddles in order. You can use a hint or even skip a riddle, but these options come with penalties. Good luck, and may your wisdom prevail!</p>
+</div>
+
+    <!-- Team Registration -->
+    <div class="section" id="registration-section">
+      <h2>Register Your Team</h2>
+      <input type="text" id="teamName" placeholder="Enter your team name" aria-label="Team name">
+      <button onclick="registerTeam()" aria-label="Register team">Register</button>
+      <p id="registrationFeedback" aria-live="assertive"></p>
+    </div>
+
+    <!-- Leaderboard (all teams) -->
+    <div class="leaderboard section" id="leaderboard-section" style="display: block;">
+      <h2>Leaderboard</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Team</th>
+            <th>Score</th>
+            <th>Time Used</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Riddle Section (one riddle at a time) -->
+    <div class="section" id="riddle-section" style="display: none;">
+      <div id="riddle-container" class="riddle-card"></div>
+    </div>
+
+    <!-- Next Team Section -->
+    <div class="section" id="next-team-section">
+      <button id="next-team-btn" onclick="nextTeam()">Next Team</button>
+    </div>
+  </div>
+
+  <script>
+    // Global variables and state
+    let teams = JSON.parse(localStorage.getItem("teams")) || [];
+    let currentTeam = null;
+    let timerStarted = false;
+    let timeRemaining = 600; // 10 minutes in seconds
+    let timerInterval;
+    let currentRiddleIndex = 0; // Track the current riddle index
+
+    // Riddles array with Ensam Engineering School context (last one is an extended story)
+    const riddles = [
+      {
+        question: "At Ensam Engineering School, where myth and science intertwine, researchers study ancient legends. In the realm of ancient myths, a mighty being rules the skies. He commands winds, storms, and rains with both ferocity and grace. Who is this celestial sovereign?",
+        answer: "Zeus",
+        points: 4,
+        hint: "Think of the Greek god wielding thunderbolts."
+      },
+      {
+        question: "Ensam Engineering School's astrophysics division peers into the void. Beyond Earth lies an endless expanse adorned with stars and galaxies—the final frontier. What is this vast expanse?",
+        answer: "Space",
+        points: 6,
+        hint: "Look up at the night sky."
+      },
+      {
+        question: "Within the cutting-edge research at Ensam Engineering School, scientists examine a cosmic phenomenon where gravity is so powerful that not even light can escape. What is it?",
+        answer: "Black Hole",
+        points: 8,
+        hint: "It is the ultimate cosmic trap."
+      },
+      {
+        question: "Researchers at Ensam Engineering School have uncovered evidence of an unseen force that binds galaxies together and orchestrates the dance of celestial bodies. What is this mysterious presence?",
+        answer: "Dark Matter",
+        points: 10,
+        hint: "It is felt but never directly observed."
+      },
+      {
+        question: "At Ensam Engineering School, brilliant minds study the birthplaces of stars. Brilliant clouds of gas and dust give rise to new stars and planets. What are these celestial nurseries called?",
+        answer: "Nebula",
+        points: 12,
+        hint: "They are the cradles of new stars."
+      },
+      {
+        question: "In collaboration with space agencies, Ensam Engineering School analyzes pioneering spacecraft. A groundbreaking vessel designed to carry astronauts beyond Earth’s atmosphere. What is this marvel?",
+        answer: "Spaceship",
+        points: 14,
+        hint: "It has completed many historic missions."
+      }
+,
+      {
+        question: "Futurists at Ensam Engineering School envision humanity's next leap: a mode of interstellar travel that propels explorers to distant worlds. What is it called?",
+        answer: "Space Travel",
+        points: 16,
+        hint: "It represents humanity’s next leap."
+      },
+      {
+        question: "Ensam Engineering School’s planetary research highlights a neighbor that has captivated imaginations with its rusty hue and potential for colonization. Known as the Red Planet, which planet is it?",
+        answer: "Mars",
+        points: 18,
+        hint: "It is the fourth planet from the Sun."
+      },
+      {
+        question: "Through solar studies at Ensam Engineering School, scientists confirm that at the heart of our solar system, a radiant star provides warmth and life to Earth. What is it?",
+        answer: "The Sun",
+        points: 20,
+        hint: "It is the center of our cosmic neighborhood."
+      },
+      {
+        question: `In the secret corridors of Ensam Engineering School—a prestigious institution known for its cutting-edge research and innovation—a groundbreaking experiment was underway. In a sterile, high-security chamber, scientists had isolated a rare isotope of xenon. Rumored to be linked to legends of Spiderman, the element began to show extraordinary properties.
+
+Late one evening, as the school's fluorescent lights flickered, the xenon sample pulsed with a vibrant glow and emitted cryptic signals. The researchers watched in awe as it appeared to come alive, its luminescence revealing a hidden language of energy. Murmurs of "domination" filled the room as the xenon seemed determined to break free from human control and wreak havoc on the school.
+
+Amid rising chaos, alarms blared and emergency lights bathed the corridors in a sinister hue. The lead scientist, trembling with both fear and resolve, scrambled to decode the messages within the glowing xenon. The fate of the experiment—and perhaps the entire Ensam Engineering School—hung in the balance.
+
+Your challenge: Unravel the mystery and determine the identity of this rogue element.`,
+        answer: "Xenon",
+        points: 24,
+        hint: "Focus on the glowing element that defied control at Ensam Engineering School."
+      }
+    ];
+
+    // Calculate maximum possible raw score
+    const maxScore = riddles.reduce((sum, riddle) => sum + riddle.points, 0);
+
+    // Register team and initialize challenge
+    function registerTeam() {
+      const teamName = document.getElementById("teamName").value.trim();
+      if (!teamName) return alert("Enter a team name.");
+      if (teams.some(team => team.name === teamName))
+        return alert("Team already exists.");
+      currentTeam = { name: teamName, score: 0, timeUsed: 0, riddlesSolved: 0 };
+      teams.push(currentTeam);
+      localStorage.setItem("teams", JSON.stringify(teams));
+      document.getElementById("registration-section").style.display = "none";
+      document.getElementById("intro-section").style.display = "none";
+      document.getElementById("riddle-section").style.display = "block";
+      document.getElementById("next-team-section").style.display = "none";
+      updateLeaderboard();
+      displayCurrentRiddle();
+      startTimer();
+      alert(`Team "${teamName}" registered!`);
+    }
+
+    // Display the current riddle (one at a time)
+    function displayCurrentRiddle() {
+      if (currentRiddleIndex >= riddles.length) {
+        alert("Congratulations! You have answered all the questions in time and saved Ensam Engineering School from Xenon's evil!");
+        disableAllRiddles();
+        showNextTeamButton();
+        return;
+      }
+      const container = document.getElementById("riddle-container");
+      container.innerHTML = "";
+      const riddle = riddles[currentRiddleIndex];
+      container.className = (currentRiddleIndex === riddles.length - 1) ? "riddle-card story-riddle" : "riddle-card";
+      container.innerHTML = `
+        <h3>Riddle ${currentRiddleIndex + 1}</h3>
+        <p>${riddle.question}</p>
+        <input type="text" placeholder="Your answer..." aria-label="Answer for riddle ${currentRiddleIndex + 1}">
+        <div class="button-group">
+          <button onclick="submitAnswer()">Submit</button>
+          <button onclick="useHint()">Hint</button>
+          <button onclick="skipRiddle()">Skip</button>
+        </div>
+        <p class="hint-text" id="hint-${currentRiddleIndex}" style="display: none;">Hint: ${riddle.hint}</p>
+      `;
+    }
+
+    // Submit answer for the current riddle
+    function submitAnswer() {
+      if (timeRemaining <= 0) return;
+      const container = document.getElementById("riddle-container");
+      const userAnswer = container.querySelector("input").value.trim().toLowerCase();
+      const correctAnswer = riddles[currentRiddleIndex].answer.toLowerCase();
+      if (userAnswer === correctAnswer) {
+        currentTeam.score += riddles[currentRiddleIndex].points;
+        currentTeam.riddlesSolved++;
+        alert("Correct answer!");
+        nextRiddle();
+      } else {
+        timeRemaining = Math.max(timeRemaining - 10, 0);
+        alert("Incorrect answer! 10 seconds penalty applied.");
+      }
+      updateLeaderboard();
+    }
+
+    // Use hint for the current riddle
+    function useHint() {
+      const hintEl = document.getElementById(`hint-${currentRiddleIndex}`);
+      if (hintEl.style.display === "none") {
+        hintEl.style.display = "block";
+        currentTeam.score -= 2;
+        alert("Hint used! 2 points deducted.");
+        updateLeaderboard();
+      }
+    }
+
+    // Skip the current riddle with a penalty: deduct 1 minute and 3 points
+    function skipRiddle() {
+      timeRemaining = Math.max(timeRemaining - 60, 0);
+      currentTeam.score -= 3;
+      alert("Riddle skipped! 1 minute penalty and 3 points deducted.");
+      updateLeaderboard();
+      nextRiddle();
+    }
+
+    // Move to the next riddle
+    function nextRiddle() {
+      currentRiddleIndex++;
+      if (currentRiddleIndex < riddles.length) {
+        displayCurrentRiddle();
+      } else {
+        alert("Challenge completed!");
+        disableAllRiddles();
+        showNextTeamButton();
+      }
+    }
+
+    // Update the leaderboard to show all teams (sorted by score and time)
+    function updateLeaderboard() {
+      const leaderboardBody = document.getElementById("leaderboard-body");
+      leaderboardBody.innerHTML = "";
+      // Update current team's timeUsed if available
+      if (currentTeam) currentTeam.timeUsed = 600 - timeRemaining;
+      teams.sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return a.timeUsed - b.timeUsed;
+      });
+      teams.forEach((team, index) => {
+        const normalizedScore = normalizeScore(team.score);
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${team.name}</td>
+          <td>${normalizedScore}</td>
+          <td>${formatTime(team.timeUsed)}</td>
+        `;
+        leaderboardBody.appendChild(row);
+      });
+    }
+
+    // Normalize raw score to a mark between 0 and 20 (clamped)
+    function normalizeScore(score) {
+      const raw = (score / maxScore) * 20;
+      const normalized = Math.max(0, Math.min(20, raw));
+      return normalized.toFixed(1);
+    }
+
+    // Start the countdown timer from 10 minutes
+    function startTimer() {
+      if (timerStarted) return;
+      timerStarted = true;
+      timeRemaining = 600;
+      timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    // Update timer display and check for timeout
+    function updateTimer() {
+      if (timeRemaining <= 0) {
+        clearInterval(timerInterval);
+        document.getElementById("timer").textContent = "Time: 00:00";
+        alert("Time's up!");
+        disableAllRiddles();
+        updateLeaderboard();
+        showNextTeamButton();
+        return;
+      }
+      const minutes = String(Math.floor(timeRemaining / 60)).padStart(2, "0");
+      const seconds = String(timeRemaining % 60).padStart(2, "0");
+      document.getElementById("timer").textContent = `Time: ${minutes}:${seconds}`;
+      timeRemaining--;
+    }
+
+    // Format seconds as mm:ss
+    function formatTime(secondsElapsed) {
+      const minutes = String(Math.floor(secondsElapsed / 60)).padStart(2, "0");
+      const seconds = String(secondsElapsed % 60).padStart(2, "0");
+      return `${minutes}:${seconds}`;
+    }
+
+    // Disable all inputs/buttons when time is up or challenge is complete
+    function disableAllRiddles() {
+      const elems = document.querySelectorAll("#riddle-section input, #riddle-section button");
+      elems.forEach(elem => elem.disabled = true);
+    }
+
+    // Show the Next Team button
+    function showNextTeamButton() {
+      document.getElementById("next-team-section").style.display = "block";
+    }
+
+    // Reset the game for the next team while keeping previous teams in the leaderboard
+    function nextTeam() {
+      // Reset state variables for new team
+      currentTeam = null;
+      currentRiddleIndex = 0;
+      timeRemaining = 600;
+      timerStarted = false;
+      clearInterval(timerInterval);
+      // Show registration and intro sections; hide riddle and Next Team sections (leaderboard remains visible)
+      document.getElementById("registration-section").style.display = "block";
+      document.getElementById("intro-section").style.display = "block";
+      document.getElementById("riddle-section").style.display = "none";
+      document.getElementById("next-team-section").style.display = "none";
+      // Clear the team name input field
+      document.getElementById("teamName").value = "";
+      alert("Prepare for the next team!");
+    }
+  </script>
+</body>
+</html>
